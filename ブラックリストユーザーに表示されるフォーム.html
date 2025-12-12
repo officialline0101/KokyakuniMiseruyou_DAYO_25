@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当日予約フォーム</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* 基本設定 */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding-top: 5px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background-color: #fdfdfd;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 96%;
+            max-width: 500px;
+            padding: 25px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        /* ヘッダー */
+        h1 {
+            background: linear-gradient(135deg, #ff9bcb, #ff9bcb);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin: -20px -15px 10px -15px;
+            font-size: 24px;
+            font-weight: 100;
+        }
+
+        .small-text {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* 今日の日付表示 */
+        #today-display {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 2px solid #ff9bcb;
+        }
+
+        /* ラベル */
+        .label {
+            display: block;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #ff9bcb;
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+
+        .required {
+            background-color: rgb(255, 15, 15);
+            color: white;
+            font-size: 0.6em;
+            padding: 0 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* 入力フォーム */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        /* 注意事項ボックス */
+        .note-box {
+            background-color: #fff0f5;
+            border: 1px solid #ff9bcb;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .note-box h3 {
+            margin: 0 0 10px 0;
+            color: #ff9bcb;
+            font-size: 16px;
+            text-align: center;
+            border-bottom: 1px dashed #ff9bcb;
+            padding-bottom: 5px;
+        }
+
+        .note-list {
+            padding-left: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* 同意チェックボックスエリア */
+        .agreement-area {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 5px;
+        }
+
+        .agreement-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* カスタムチェックボックス */
+        input[type="checkbox"] {
+            transform: scale(1.5); /* チェックボックスを大きく */
+            accent-color: #ff9bcb; /* チェック時の色 */
+            cursor: pointer;
+        }
+
+        /* 営業日カレンダー表 */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .schedule-table th {
+            background-color: #f7f7f7;
+            width: 30%;
+            font-weight: bold;
+        }
+
+        /* ★改良版 送信ボタン */
+        .submit-button {
+            width: 100%;
+            padding: 18px; /* 高さを増やす */
+            font-size: 20px; /* 文字を大きく */
+            font-weight: bold;
+            color: #fff;
+            /* ピンクのグラデーション */
+            background: linear-gradient(135deg, #ff9bcb 0%, #ff6eb4 100%);
+            border: none;
+            border-radius: 50px; /* 角丸（カプセル型） */
+            box-shadow: 0 4px 15px rgba(255, 107, 180, 0.4); /* ふんわり影 */
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            
+            /* デフォルトは無効状態の見た目 */
+            opacity: 0.5;
+            pointer-events: none; /* クリック不可 */
+            filter: grayscale(80%);
+        }
+
+        /* 有効化されたときのスタイル */
+        .submit-button.active {
+            opacity: 1;
+            pointer-events: auto;
+            filter: grayscale(0%);
+            transform: translateY(0);
+        }
+
+        /* ホバー時の動き */
+        .submit-button.active:hover {
+            transform: translateY(-2px); /* 少し浮く */
+            box-shadow: 0 6px 20px rgba(255, 107, 180, 0.6);
+        }
+
+        /* クリック時の動き */
+        .submit-button.active:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(255, 107, 180, 0.4);
+        }
+
+        /* 下部リンクテキスト */
+        .contact-link {
+            text-align: center;
+            margin: 20px 0 10px 0;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 終了メッセージ */
+        #closed-message {
+            display: none;
+            color: red;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+            font-size: 18px;
+            border: 2px solid red;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>
+            <span class="small-text">eyelash salon Mimi</span>
+            当日予約フォーム
+        </h1>
+
+        <div id="today-display"></div>
+
+        <div id="closed-message">本日のWeb予約受付は終了しました。<br>お問い合わせはチャットにてお願いします。</div>
+
+        <div id="form-area">
+            <div class="label">お名前<span class="required">必須</span></div>
+            <input type="text" id="name" placeholder="お名前を入力してください">
+
+            <div class="label">希望時間1<span class="required">必須</span></div>
+            <select id="time1">
+                <option value="" disabled selected>時間を選択してください</option>
+            </select>
+
+            <div class="label">希望時間2<span class="required">必須</span></div>
+            <select id="time2">
+                <option value="" disabled selected>時間を選択してください</option>
+            </select>
+
+            <div class="note-box">
+                <h3>⚠️ ご予約前の注意事項</h3>
+                <ul class="note-list">
+                    <li>フォーム送信時点では<strong>予約は確定しておりません</strong>。当店からの返信をもって予約確定となります。</li>
+                    <li>ご希望のお時間が満席の場合、時間の変更をお願いすることがございます。</li>
+                </ul>
+            </div>
+
+            <div class="agreement-area">
+                <label class="agreement-label">
+                    <input type="checkbox" id="agree-check" onchange="toggleSubmitButton()">
+                    <span>注意事項に同意する</span>
+                </label>
+            </div>
+
+            <button id="btn-submit" class="submit-button" onclick="submitForm()">予約を行う</button>
+        </div>
+
+        <table class="schedule-table">
+            <tr>
+                <th>日</th>
+                <td style="color: red;">営業時間外</td>
+            </tr>
+            <tr>
+                <th>月</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+            <tr>
+                <th>火</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+            <tr>
+                <th>水</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+            <tr>
+                <th>木</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+            <tr>
+                <th>金</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+            <tr>
+                <th>土</th>
+                <td>09:00 - 18:00</td>
+            </tr>
+        </table>
+
+        <div class="contact-link">
+            その他のお問い合わせは<br>
+            チャットにてご連絡ください。
+        </div>
+    </div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script>
+        // 現在時刻の取得用変数
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // 曜日配列
+        const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // LIFF初期化
+            liff.init({
+                liffId: '2005254357-zKma9BZk'
+            }).then(() => {
+                console.log('LIFF init success');
+            }).catch((err) => {
+                console.log('LIFF init failed', err);
+            });
+
+            // 1. 今日の日付を表示
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const day = weekDays[now.getDay()];
+            const todayStr = `${year}年${month}月${date}日（${day}）`;
+            
+            document.getElementById('today-display').textContent = todayStr + " の予約";
+
+            // 名前の復元
+            const savedName = localStorage.getItem('name');
+            if (savedName) document.getElementById('name').value = savedName;
+
+            // 2. 時間の選択肢を生成 (現在時刻を考慮)
+            const hasOptions = generateTimeOptions('time1');
+            generateTimeOptions('time2');
+
+            // もし選択できる時間が一つもなければ受付終了とする
+            if (!hasOptions) {
+                document.getElementById('closed-message').style.display = 'block';
+                // フォーム全体を非表示または無効化
+                const btn = document.getElementById('btn-submit');
+                btn.classList.remove('active');
+                btn.textContent = '受付終了';
+                
+                document.getElementById('time1').disabled = true;
+                document.getElementById('time2').disabled = true;
+                document.getElementById('name').disabled = true;
+                document.getElementById('agree-check').disabled = true;
+            }
+        });
+
+        // チェックボックスの状態監視
+        function toggleSubmitButton() {
+            const checkBox = document.getElementById('agree-check');
+            const btn = document.getElementById('btn-submit');
+            
+            if (checkBox.checked) {
+                btn.classList.add('active'); // 有効化デザインへ
+            } else {
+                btn.classList.remove('active'); // 無効化デザインへ
+            }
+        }
+
+        // 名前の保存
+        document.getElementById('name').addEventListener('input', function() {
+            localStorage.setItem('name', this.value);
+        });
+
+        // 時間オプション生成関数 (現在時刻より未来のみ表示)
+        function generateTimeOptions(elementId) {
+            const select = document.getElementById(elementId);
+            const startHour = 9;
+            const endHour = 16;
+            let optionCount = 0;
+            
+            for (let h = startHour; h <= endHour; h++) {
+                // 00分
+                if (isFuture(h, 0)) {
+                    addOption(select, h, 0);
+                    optionCount++;
+                }
+                // 30分 (16:30まで)
+                if (h <= 16 && isFuture(h, 30)) {
+                    addOption(select, h, 30);
+                    optionCount++;
+                }
+            }
+            return optionCount > 0;
+        }
+
+        // 未来かどうか判定する関数
+        function isFuture(targetH, targetM) {
+            // 時間が現在より大きい、または (時間が同じ かつ 分が現在より大きい)
+            if (targetH > currentHour) return true;
+            if (targetH === currentHour && targetM > currentMinute) return true;
+            return false;
+        }
+
+        function addOption(select, h, m) {
+            const hh = String(h).padStart(2, '0');
+            const mm = String(m).padStart(2, '0');
+            const val = `${hh}:${mm}`;
+            
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            select.appendChild(option);
+        }
+
+        // 送信処理
+        function submitForm() {
+            const checkBox = document.getElementById('agree-check');
+            // 一応JS側でもチェック
+            if (!checkBox.checked) {
+                return; // 押せないはずだが念のため
+            }
+
+            const name = document.getElementById('name').value.trim();
+            const time1 = document.getElementById('time1').value;
+            const time2 = document.getElementById('time2').value;
+            const todayText = document.getElementById('today-display').textContent.replace(' の予約', '');
+
+            // バリデーション
+            if (!name) {
+                alert('お名前を入力してください。');
+                return;
+            }
+            if (!time1) {
+                alert('希望時間1を選択してください。');
+                return;
+            }
+            if (!time2) {
+                alert('希望時間2を選択してください。');
+                return;
+            }
+
+            // LINE送信メッセージ作成
+            const textMessage = `【当日予約フォーム】\n` +
+                                `日時：${todayText}\n\n` +
+                                `《お名前》\n${name}\n\n` +
+                                `《希望時間1》\n${time1}\n\n` +
+                                `《希望時間2》\n${time2}\n\n` +
+                                `※注意事項に同意済み`;
+
+            // LIFF送信
+            if (!liff.isInClient()) {
+                alert('LINEアプリ内から開いてください。\n\n送信内容プレビュー:\n' + textMessage);
+            } else {
+                liff.sendMessages([{
+                    type: 'text',
+                    text: textMessage
+                }]).then(() => {
+                    liff.closeWindow();
+                }).catch((err) => {
+                    console.error('送信エラー', err);
+                    alert('メッセージの送信に失敗しました。\nLINEアプリから再度お試しください。');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
