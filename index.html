@@ -851,11 +851,8 @@
 
             console.log('選択されたメニューの時間:', selectedMenuTime);
 
-            // ✅ キャッシュクリア（毎回強制リロード）
-            availabilityCache = {};
-
-            // ✅ カレンダー再取得を実行（選択・解除どちらでも）
-            fetchAvailability(currentDate);
+            // ✅ キャッシュから即時再描画（GAS通信なし）
+            redrawFromCache();
 
             // --- メニュー詳細を来店回数に応じて表示 ---
             const treatmentText = document.getElementById('treatment-text');
@@ -927,11 +924,8 @@
 
             console.log('選択されたオプションの合計時間:', selectedirradiationsTime);
 
-            // ✅ キャッシュクリア（毎回再取得するため）
-            availabilityCache = {};
-
-            // ✅ カレンダーを更新（選択・解除どちらでも実行）
-            fetchAvailability(currentDate);
+            // ✅ キャッシュから即時再描画（GAS通信なし）
+            redrawFromCache();
 
             // 表示を更新
             updateDisplayInfo();
@@ -949,7 +943,7 @@
                 visitCount = '';
                 selectedVisitTime = 0;
                 selectedFullDate = '';
-                fetchAvailability(currentDate); // カレンダー更新
+                redrawFromCache(); // キャッシュから即時再描画
                 return;
             }
 
@@ -986,8 +980,8 @@
                 }
             }
 
-            // カレンダーを更新
-            fetchAvailability(currentDate);
+            // キャッシュから即時再描画（GAS通信なし）
+            redrawFromCache();
 
             // 表示情報を更新
             updateDisplayInfo();
@@ -1133,6 +1127,24 @@
             if (!dateStr) return '';
             const date = new Date(dateStr);
             return `${date.getFullYear()}年${('0' + (date.getMonth() + 1)).slice(-2)}月${('0' + date.getDate()).slice(-2)}日 ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`;
+        }
+
+        // ✅ キャッシュからカレンダーを即時再描画する関数（GAS通信なし）
+        function redrawFromCache() {
+            const startTime = new Date(currentDate);
+            const endTime = new Date(currentDate);
+            endTime.setDate(endTime.getDate() + 7);
+            const cacheKey = startTime.toISOString() + endTime.toISOString();
+
+            if (availabilityCache[cacheKey]) {
+                // キャッシュがあれば通信なしで即時再描画
+                console.log('キャッシュから即時再描画');
+                updateCalendar(availabilityCache[cacheKey].availability, availabilityCache[cacheKey].businessDays);
+            } else {
+                // キャッシュが無い場合のみフェッチ（フォールバック）
+                console.log('キャッシュなし → フェッチ実行');
+                fetchAvailability(currentDate);
+            }
         }
 
         async function fetchAvailability(date, forceReload = false) {
