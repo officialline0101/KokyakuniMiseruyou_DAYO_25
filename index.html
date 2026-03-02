@@ -72,7 +72,7 @@
             margin: 0 auto;
             box-shadow: var(--shadow-card);
             animation: fadeIn 0.5s ease;
-            overflow: hidden;
+            overflow: visible;
         }
 
         /* --- h1 --- */
@@ -291,7 +291,7 @@
             background: rgba(0,0,0,0.25);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            overflow: hidden; width: 100%;
+            overflow: visible; width: 100%;
         }
         .calendar table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .calendar th, .calendar td {
@@ -644,16 +644,16 @@
         // 来店回数別のメニュー料金
         let menuPrices = {
             '初めての来店': {
-                'もみほぐし60分': 7000,
-                'もみほぐし80分': 9000,
-                'もみほぐし100分': 10000,
-                'もみほぐし120分': 13000
-            },
-            '2回目以降': {
                 'もみほぐし60分': 8000,
                 'もみほぐし80分': 10000,
                 'もみほぐし100分': 11000,
                 'もみほぐし120分': 14000
+            },
+            '2回目以降': {
+                'もみほぐし60分': 7000,
+                'もみほぐし80分': 9000,
+                'もみほぐし100分': 10000,
+                'もみほぐし120分': 13000
             }
         };
 
@@ -851,10 +851,7 @@
 
             console.log('選択されたメニューの時間:', selectedMenuTime);
 
-            // ✅ キャッシュから即時再描画（GAS通信なし）
-            redrawFromCache();
-
-            // --- メニュー詳細を来店回数に応じて表示 ---
+            // --- メニュー詳細を来店回数に応じて即時表示 ---
             const treatmentText = document.getElementById('treatment-text');
             const menuName = button.textContent;
             let priceDisplay = '';
@@ -891,6 +888,9 @@
 
             // 表示更新
             updateDisplayInfo();
+
+            // ✅ キャッシュから再描画（料金表示後に実行）
+            redrawFromCache();
         }
 
         function selectirradiations(button) {
